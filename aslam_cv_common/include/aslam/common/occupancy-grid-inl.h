@@ -224,7 +224,7 @@ WeightedOccupancyGrid<PointType>::setConstantWeightForAllPointsInGrid(
 
 template<typename PointType>
 size_t WeightedOccupancyGrid<PointType>::getNumPoints() const {
-  //#ifdef DEBUG
+#ifdef DEBUG
     size_t num_pts = 0;
     for (const std::vector<PointList>& rows : grid_) {
       for (const PointList& cell : rows) {
@@ -232,7 +232,7 @@ size_t WeightedOccupancyGrid<PointType>::getNumPoints() const {
       }
     }
     CHECK_EQ(current_num_points_, num_pts);
- // #endif
+#endif
 
   return current_num_points_;
 }
@@ -245,6 +245,8 @@ size_t WeightedOccupancyGrid<PointType>::removeWeightedPointsFromOverfullCells(
   size_t num_removed = 0u;
   for (size_t i_row = 0u; i_row < num_grid_rows_; ++i_row) {
     for (size_t j_col = 0u; j_col < num_grid_cols_; ++j_col) {
+      num_removed += removeWeightedPointsFromOverfullCell(
+          GridCoordinates(i_row, j_col), max_points_per_cell);
       PointList& cell = getGridCell(GridCoordinates(i_row, j_col));
 
       if (cell.size() > max_points_per_cell) {
@@ -278,7 +280,7 @@ cv::Mat WeightedOccupancyGrid<PointType>::getOccupancyMask(
       // Mask out the individual keypoints in the cell.
       for (const PointType& point : cell) {
         cv::circle(mask, cv::Point(point.v_cols, point.u_rows), radius_mask_around_points,
-                   cv::Scalar(0), CV_FILLED);
+                   cv::Scalar(0), cv::FILLED);
       }
 
       // Mask the entire cell if the cell is full.
@@ -286,7 +288,7 @@ cv::Mat WeightedOccupancyGrid<PointType>::getOccupancyMask(
         cv::Point top_left(j_col * cell_size_cols_, i_row * cell_size_rows_);
         cv::Point bottom_right((j_col + 1) * cell_size_cols_ - 1,
                                (i_row + 1) * cell_size_rows_ - 1);
-        cv::rectangle(mask, top_left, bottom_right, cv::Scalar(0), CV_FILLED);
+        cv::rectangle(mask, top_left, bottom_right, cv::Scalar(0), cv::FILLED);
       }
     }
   }
