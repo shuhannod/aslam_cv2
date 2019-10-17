@@ -193,31 +193,6 @@ class GyroTwoFrameMatcher {
   static constexpr size_t kMaxNumInferiorIterations = 3u;
 };
 
-void GyroTwoFrameMatcher::getKeypointIteratorsInWindow(
-    const Eigen::Vector2d& predicted_keypoint_position,
-    const int window_half_side_length_px,
-    KeyPointIterator* it_keypoints_begin,
-    KeyPointIterator* it_keypoints_end) const {
-  CHECK_NOTNULL(it_keypoints_begin);
-  CHECK_NOTNULL(it_keypoints_end);
-CHECK_GT(window_half_side_length_px, 0);
-
-  // Compute search area for LUT iterators row-wise.
-  int LUT_index_top = clamp(0, kImageHeight - 1, static_cast<int>(
-      predicted_keypoint_position(1) + 0.5 - window_half_side_length_px));
-  int LUT_index_bottom = clamp(0, kImageHeight - 1, static_cast<int>(
-      predicted_keypoint_position(1) + 0.5 + window_half_side_length_px));
-
-  *it_keypoints_begin = keypoints_kp1_sorted_by_y_.begin() + corner_row_LUT_[LUT_index_top];
-  *it_keypoints_end = keypoints_kp1_sorted_by_y_.begin() + corner_row_LUT_[LUT_index_bottom];
-
-  CHECK_LE(LUT_index_top, LUT_index_bottom);
-  CHECK_GE(LUT_index_bottom, 0);
-  CHECK_GE(LUT_index_top, 0);
-  CHECK_LT(LUT_index_top, kImageHeight);
-  CHECK_LT(LUT_index_bottom, kImageHeight);
-}
-
 inline int GyroTwoFrameMatcher::clamp(
     const int lower, const int upper, const int in) const {
   return std::min<int>(std::max<int>(in, lower), upper);
